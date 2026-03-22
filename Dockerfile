@@ -18,7 +18,5 @@ RUN pip3 install --no-cache-dir -r requirements.txt
 # Copy handler
 COPY handler.py .
 
-# Pre-download model at build time (baked into image = no cold start download)
-RUN python3 -c "from diffusers import FluxPipeline; FluxPipeline.from_pretrained('Qwen/Qwen-Image-Edit')"
-
+# Model is downloaded at first cold start (~2-3 min) then cached
 CMD ["python3", "handler.py"]
