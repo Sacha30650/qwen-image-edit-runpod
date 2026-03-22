@@ -1,6 +1,6 @@
 """
-RunPod Serverless Handler for Qwen-Image-Edit
-Receives a prompt + reference image (base64), returns edited image URL.
+RunPod Serverless Handler for Qwen-Image-Edit-2511
+Receives a prompt + reference image (base64), returns edited image (base64).
 """
 
 import runpod
@@ -20,12 +20,15 @@ def load_model():
     if pipe is not None:
         return pipe
 
-    from diffusers import FluxPipeline
+    from diffusers import QwenImageEditPlusPipeline
 
-    print("Loading Qwen-Image-Edit model...")
-    pipe = FluxPipeline.from_pretrained(
-        "Qwen/Qwen-Image-Edit",
+    cache_dir = os.environ.get("HF_HOME", "/cache/huggingface")
+    print(f"Loading Qwen-Image-Edit-2511 model (cache: {cache_dir})...")
+
+    pipe = QwenImageEditPlusPipeline.from_pretrained(
+        "Qwen/Qwen-Image-Edit-2511",
         torch_dtype=torch.bfloat16,
+        cache_dir=cache_dir,
     )
     pipe.to("cuda")
     print("Model loaded successfully.")
@@ -55,9 +58,9 @@ def handler(event):
     Input (event["input"]):
         - prompt: str — editing instruction
         - image: str — base64 data URI of reference image
-        - seed: int (optional) — random seed
-        - guidance_scale: float (optional, default 2.5)
-        - num_inference_steps: int (optional, default 28)
+        - seed: int (optional, default 0)
+        - true_cfg_scale: float (optional, default 4.0)
+        - num_inference_steps: int (optional, default 40)
 
     Output:
         - image: str — base64 data URI of generated image
@@ -66,42 +69,37 @@ def handler(event):
         inp = event["input"]
         prompt = inp.get("prompt", "")
         image_b64 = inp.get("image", "")
-        seed = inp.get("seed", -1)
-        guidance_scale = inp.get("guidance_scale", 2.5)
-        num_inference_steps = inp.get("num_inference_steps", 28)
+        seed = inp.get("seed", 0)
+        true_cfg_scale = inp.get("true_cfg_scale", 4.0)
+        num_inference_steps = inp.get("num_inference_steps", 40)
 
         if not prompt:
             return {"error": "Missing prompt"}
 
         model = load_model()
 
-        # Decode reference image if provided
+        # Decode reference image
         input_image = None
         if image_b64:
             input_image = decode_base64_image(image_b64)
             input_image = input_image.resize((1024, 1024), Image.LANCZOS)
 
-        # Set seed
-        generator = None
-        if seed >= 0:
-            generator = torch.Generator(device="cuda").manual_seed(seed)
+        # Build generation params
+        gen_kwargs = {
+            "prompt": prompt,
+            "true_cfg_scale": true_cfg_scale,
+            "negative_prompt": " ",
+            "num_inference_steps": num_inference_steps,
+            "guidance_scale": 1.0,
+            "num_images_per_prompt": 1,
+            "generator": torch.manual_seed(seed),
+        }
 
-        # Generate
         if input_image is not None:
-            result = model(
-                prompt=prompt,
-                image=input_image,
-                guidance_scale=guidance_scale,
-                num_inference_steps=num_inference_steps,
-                generator=generator,
-            )
-        else:
-            result = model(
-                prompt=prompt,
-                guidance_scale=guidance_scale,
-                num_inference_steps=num_inference_steps,
-                generator=generator,
-            )
+            gen_kwargs["image"] = [input_image]
+
+        with torch.inference_mode():
+            result = model(**gen_kwargs)
 
         output_image = result.images[0]
         output_b64 = encode_image_to_base64(output_image)
