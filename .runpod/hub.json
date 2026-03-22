@@ -1,0 +1,22 @@
+{
+  "title": "Qwen Image Edit",
+  "description": "Qwen Image Edit for children's book illustration editing",
+  "type": "serverless",
+  "category": "image",
+  "config": {
+    "runsOn": "GPU",
+    "containerDiskInGb": 30,
+    "presets": [
+      {
+        "name": "80GB PRO",
+        "gpuIds": "80GB PRO",
+        "minWorkers": 0,
+        "maxWorkers": 3,
+        "idleTimeout": 60,
+        "scalerType": "QUEUE_DELAY",
+        "scalerValue": 1
+      }
+    ],
+    "env": []
+  }
+}

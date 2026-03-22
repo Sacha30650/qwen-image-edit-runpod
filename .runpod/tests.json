@@ -1,0 +1,11 @@
+{
+  "tests": [
+    {
+      "name": "text_to_image_test",
+      "input": {
+        "prompt": "A cute white rabbit in a meadow, children book watercolor illustration"
+      },
+      "timeout": 120000
+    }
+  ]
+}
