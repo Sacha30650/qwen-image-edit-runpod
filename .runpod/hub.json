@@ -1,18 +1,18 @@
 {
-  "title": "Qwen Image Edit",
-  "description": "Qwen Image Edit for children's book illustration editing",
+  "title": "Qwen Image Edit (8-bit quantized)",
+  "description": "Qwen Image Edit with bitsandbytes 8-bit quantization — fits on 24GB GPU",
   "type": "serverless",
   "category": "image",
   "config": {
     "runsOn": "GPU",
-    "containerDiskInGb": 30,
+    "containerDiskInGb": 20,
     "presets": [
       {
-        "name": "80GB PRO",
-        "gpuIds": "80GB PRO",
+        "name": "24GB GPU",
+        "gpuIds": "24GB",
         "minWorkers": 0,
         "maxWorkers": 3,
-        "idleTimeout": 60,
+        "idleTimeout": 300,
         "scalerType": "QUEUE_DELAY",
         "scalerValue": 1
       }

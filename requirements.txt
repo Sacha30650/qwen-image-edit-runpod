@@ -1,8 +1,11 @@
-runpod
-torch
-diffusers
-transformers
-accelerate
+runpod>=1.7.0
+torch>=2.1.0
+diffusers>=0.32.0
+transformers>=4.45.0
+accelerate>=0.25.0
+bitsandbytes>=0.41.0
 safetensors
 Pillow
 sentencepiece
+requests
+protobuf
