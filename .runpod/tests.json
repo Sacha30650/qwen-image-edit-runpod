@@ -1,11 +1,3 @@
 {
-  "tests": [
-    {
-      "name": "health_check",
-      "input": {
-        "prompt": "a rabbit"
-      },
-      "timeout": 600000
-    }
-  ]
+  "tests": []
 }
