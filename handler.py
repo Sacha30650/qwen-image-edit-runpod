@@ -94,6 +94,11 @@ def handler(event):
     """
     try:
         inp = event.get("input", {})
+
+        # Quick ping for health check / testing
+        if inp.get("ping"):
+            return {"status": "ok", "message": "pong"}
+
         prompt = inp.get("prompt", "")
         image_b64 = inp.get("image", "")
         image_url = inp.get("image_url", "")

@@ -1,3 +1,11 @@
 {
-  "tests": []
+  "tests": [
+    {
+      "name": "ping",
+      "input": {
+        "ping": true
+      },
+      "timeout": 30000
+    }
+  ]
 }
